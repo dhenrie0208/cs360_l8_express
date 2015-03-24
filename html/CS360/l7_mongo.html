@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Lab 7 Drew Henrie</title>
+
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+<script>
+
+$(document).ready(function()
+{
+  $("#btnClear").click( function()
+  {
+    console.log( "clear button pressed" );
+
+    var url = "http://52.11.86.186/CS360/clear";
+
+    $("#divJSON").text( "(comments cleared)" );
+    
+    //$.get(url, function(data)
+    //{
+    //  $("#divJSONSuccessFailure").text(data);
+    //});
+    jQuery.ajax ({
+      url: url,
+      type: "POST",
+      data: "",
+      contentType: "text/HTML; charset=utf-8",
+      success: function(){
+        $("#divJSONSuccessFailure").append("Clear Success");
+      }
+    });
+
+    $("#divCurrentComments").html( "" );
+    //$("#divJSONSuccessFailure").text( "" );
+  });
+
+
+  $("#btnShow").click( function()
+  {
+    console.log("show button pressed");
+    
+    var url = "http://52.11.86.186/CS360/comment";
+
+      $.getJSON( url, function( data )
+      {
+        var commentHTML = "";
+
+        if( $("#cbStyle").prop('checked') )
+        {
+          commentHTML = "<table border=1><tr><td>Name</td><td>Comment</td></tr>";
+          $.each( data, function( i, item )
+          {
+            commentHTML += "<tr><td>" + data[i].Name + "</td><td>" + data[i].Comment + "</td></tr>";
+          });
+          commentHTML += "</table>";
+        }
+        else
+        {
+          commentHTML = "<ul>";
+          $.each( data, function( i, item )
+          {
+            commentHTML += "<li> Name: " + data[i].Name + " Comment: " + data[i].Comment;
+          });
+          commentHTML += "</ul>";
+        }
+
+        $("#divCurrentComments").html( commentHTML );
+        $("#divJSONSuccessFailure").text("ok");
+      });
+  });
+
+
+  $("#btnSubmit").click( function()
+  {
+    console.log("submit button pressed");
+
+    var url = "http://52.11.86.186/CS360/comment";
+
+    var myobj = {Name:$("#Name").val(),Comment:$("#Comment").val()};
+
+    jobj = JSON.stringify(myobj);
+
+    $("#divJSON").text(jobj);
+    
+    //$.post(url, jobj, function(data, textStatus)
+    //{
+    //  $("#divJSONSuccessFailure").text(textStatus);
+    //});
+    jQuery.ajax ({
+      url: url,
+      type: "POST",
+      data: jobj,
+      contentType: "application/json; charset=utf-8",
+      success: function(){
+        $("#divJSONSuccessFailure").append("Submit Success");
+      }
+    });
+  });
+});
+
+</script>
+
+</head>
+
+<body>
+
+<form id="commentForm" action"">
+  Name: <input type="text" id="Name" value="Trogdor"><br>
+  Comment: <input type="text" id="Comment" value="Burninate all the peasants!"><br>
+  <input type="checkbox" id="cbStyle" checked>Improve Style (click "Show Comments" to apply change)<br>
+</form>
+
+<button id="btnSubmit">Submit Comment</button>
+<button id="btnShow">Show Comments</button>
+<button id="btnClear">Clear Comments</button>
+<br>
+
+<b>JSON string:</b>
+
+<div id="divJSON"></div>
+
+<div id="divJSONSuccessFailure"></div>
+
+<b>Comment History:</b> (newest at bottom)
+
+<div id="divCurrentComments"></div>
+
+<p>
+
+<font size=1>
+CS 360 Lab 7 - 
+Drew Henrie
+</font>
+
+</body>
+</html>

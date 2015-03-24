@@ -1,0 +1,136 @@
+<html>
+
+<head>
+
+<title>City Finder</title>
+
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+</head>
+
+<body>
+
+<form>
+Enter A Utah City: <input type="text" id="cityfield" value=""><br>
+Suggestion: <span id="txtHint">Empty</span>
+<!--<input id="button" type="submit" value="Submit">-->
+</form>
+
+<p>City</p>
+
+<textarea id="dispcity">No City</textarea>
+
+<p>Current Weather</p>
+
+<div id="weather">No weather</div>
+
+<script>
+
+var suggestedCities;
+
+$( "#cityfield" ).keyup(function() {
+
+
+
+  var url = "getcity?q="+$("#cityfield").val();
+  $.getJSON(url, function(data) {
+
+    suggestedCities = data;
+
+    var genHTML = "<form><ul>";
+ 
+    $.each(suggestedCities, function(i,item) {
+      genHTML += '<li><input id="button_'+suggestedCities[i].city.replace(/ /g,"_")+'" type="submit" value="'+suggestedCities[i].city+'">';
+    });
+  
+    genHTML += "</ul></form>";
+
+    genHTML += "<scr"+"ipt>";
+
+    $.each(suggestedCities, function(i,item) {
+
+    genHTML += '$("#button_'+suggestedCities[i].city.replace(/ /g,"_")+'").click( function(e)\n'+
+'  {\n'+
+'    e.preventDefault();\n'+
+'\n'+
+'    var cityfieldval = "'+suggestedCities[i].city+'";\n'+
+'\n'+
+'    var wundergroundKey = "26bcf7df11c25ea0";\n'+
+'\n'+
+'    var myurl= "https://api.wunderground.com/api/"+wundergroundKey+"/geolookup/conditions/q/UT/";\n'+
+'    myurl += cityfieldval.replace(/ /g,"%20");\n'+
+'    myurl += ".json";\n'+
+'\n'+
+'    $("#dispcity").text(cityfieldval);\n'+
+'\n'+
+'    console.log(myurl);\n'+
+'\n'+
+'    $.ajax(\n'+
+'    {\n'+
+'      url : myurl,\n'+
+'      dataType : "jsonp",\n'+
+'      success : function(parsed_json)\n'+
+'      {\n'+
+'        console.log(parsed_json);\n'+
+'        var location = parsed_json["location"]["city"];\n'+
+'        var lat = parsed_json["location"]["lat"];\n'+
+'        var lon = parsed_json["location"]["lon"];\n'+
+'        var temp_string = parsed_json["current_observation"]["temperature_string"];\n'+
+'        var current_weather = parsed_json["current_observation"]["weather"];\n'+
+'        var btnGenHTML = "<ul>";\n'+
+'        btnGenHTML += "<li>Location: <a href=https://www.google.com/maps/@"+lat+","+lon+",12z>"+location+"</a>";\n'+
+'        btnGenHTML += "<li>Temperature: "+temp_string;\n'+
+'        btnGenHTML += "<li>Weather: "+current_weather;\n'+
+'        btnGenHTML += "</ul>";\n'+
+'        $("#weather").html(btnGenHTML);\n'+
+'      }\n'+
+'    } );   \n'+
+'  } );\n';
+
+  });//end of .each
+
+   genHTML += "<"+"/scr"+"ipt>";
+
+
+
+    console.log(genHTML);
+    $("#txtHint").html(genHTML);
+  })
+  .done( function() { console.log('getJSON request succeeded!'); } )
+  .fail( function(jqXHR, textStatus, errorThrown)
+  {
+    console.log('getJSON request failed! ' + textStatus);
+    console.log('incoming '+jqXHR.responseText);
+  } )
+  .always( function() { console.log('getJSON request ended!'); } )
+  .complete( function() { console.log("complete"); } );
+
+
+
+  // alert( "Handler for .keyup() called." );
+
+  // $("#txtHint").text("YOU: "+$("#cityfield").val());
+
+  /*
+  $.getJSON("staticCity.txt", function(data) {
+    console.log("Got "+data);
+    console.log("Got "+data[0]);
+    console.log("Got "+data[0].city);
+
+    var everything = "<ul>";
+    $.each(data, function(i,item) {
+      everything += "<li> "+data[i].city;
+    });
+  
+    everything += "</ul>";
+
+    $("#txtHint").html(everything);
+  });
+  */
+
+});
+</script>
+
+</body>
+
+</html>

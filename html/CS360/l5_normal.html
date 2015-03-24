@@ -1,0 +1,121 @@
+<html>
+
+<head>
+
+<title>City Finder</title>
+
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+</head>
+
+<body>
+
+<form>
+Enter A Utah City: <input type="text" id="cityfield" value=""><br>
+Suggestion: <span id="txtHint">Empty</span>
+<input id="button" type="submit" value="Submit">
+</form>
+
+<p>City</p>
+
+<textarea id="dispcity">No City</textarea>
+
+<p>Current Weather</p>
+
+<div id="weather">No weather</div>
+
+<script>
+
+$( "#cityfield" ).keyup(function() {
+
+
+
+  var url = "getcity?q="+$("#cityfield").val();
+  $.getJSON(url, function(data) {
+
+    var genHTML = "<ul>";
+ 
+    $.each(data, function(i,item) {
+      genHTML += "<li> "+data[i].city;
+    });
+  
+    genHTML += "</ul>";
+
+    $("#txtHint").html(genHTML);
+  })
+  .done( function() { console.log('getJSON request succeeded!'); } )
+  .fail( function(jqXHR, textStatus, errorThrown)
+  {
+    console.log('getJSON request failed! ' + textStatus);
+    console.log('incoming '+jqXHR.responseText);
+  } )
+  .always( function() { console.log('getJSON request ended!'); } )
+  .complete( function() { console.log("complete"); } );
+
+
+
+  $("#button").click( function(e)
+  {
+    e.preventDefault();
+
+    var cityfieldval = $("#cityfield").val();
+
+    var wundergroundKey = "26bcf7df11c25ea0";
+
+    var myurl= "https://api.wunderground.com/api/"+wundergroundKey+"/geolookup/conditions/q/UT/";
+    myurl += cityfieldval
+    myurl += ".json";
+
+    $("#dispcity").text(cityfieldval);
+
+    console.log(myurl);
+
+    $.ajax(
+    {
+      url : myurl,
+      dataType : "jsonp",
+      success : function(parsed_json)
+      {
+        console.log(parsed_json);
+        var location = parsed_json['location']['city'];
+        var temp_string = parsed_json['current_observation']['temperature_string'];
+        var current_weather = parsed_json['current_observation']['weather'];
+        var genHTML = "<ul>";
+        genHTML += "<li>Location: "+location;
+        genHTML += "<li>Temperature: "+temp_string;
+        genHTML += "<li>Weather: "+current_weather;
+        genHTML += "</ul>";
+        $("#weather").html(genHTML);
+      }
+    } );   
+  } );
+
+
+
+  // alert( "Handler for .keyup() called." );
+
+  // $("#txtHint").text("YOU: "+$("#cityfield").val());
+
+  /*
+  $.getJSON("staticCity.txt", function(data) {
+    console.log("Got "+data);
+    console.log("Got "+data[0]);
+    console.log("Got "+data[0].city);
+
+    var everything = "<ul>";
+    $.each(data, function(i,item) {
+      everything += "<li> "+data[i].city;
+    });
+  
+    everything += "</ul>";
+
+    $("#txtHint").html(everything);
+  });
+  */
+
+});
+</script>
+
+</body>
+
+</html>
